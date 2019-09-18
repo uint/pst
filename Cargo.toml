@@ -1,0 +1,12 @@
+[package]
+name = "pb"
+description = "A CLI pastebin client."
+version = "0.1.0"
+authors = ["Tomasz Kurcz <uint@lavabit.com>"]
+edition = "2018"
+license = "MIT"
+keywords = ["pastebin", "CLI", "paste"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+reqwest = "0.9"
