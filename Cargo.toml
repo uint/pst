@@ -10,3 +10,4 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 reqwest = "0.9"
+structopt = "0.3"
