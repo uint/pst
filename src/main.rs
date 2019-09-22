@@ -1,7 +1,11 @@
+mod bins;
+
 use std::fs;
 use std::io::{self, Read};
 use std::path::PathBuf;
 use structopt::StructOpt;
+
+use bins::Bin;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -25,18 +29,8 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>>{
             result
         },
     };
-    println!("{}", post_to_clbin(&content)?);
+    let bin = Bin::Clbin;
+    let paste = bin.post(&content)?;
+    println!("{}", paste.url());
     Ok(())
-}
-
-fn post_to_clbin(body: &str) -> reqwest::Result<String> {
-    let client = reqwest::Client::new();
-
-    let params = [("clbin", body)];
-
-    let mut res = client.post("https://clbin.com")
-        .form(&params)
-        .send()?;
-
-    res.text()
 }
