@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::{self, Read};
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -14,7 +15,11 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>>{
     let opt = Opt::from_args();
     let content = match opt.file {
         Some(filename) => fs::read_to_string(filename)?,
-        None => unimplemented!(),
+        None => {
+            let mut result = String::new();
+            io::stdin().read_to_string(&mut result)?;
+            result
+        },
     };
     println!("{}", post_to_clbin(&content)?);
     Ok(())
