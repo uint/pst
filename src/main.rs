@@ -4,7 +4,11 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "pb", about = "Share code or text without leaving the command line.")]
+#[structopt(
+    name = "pb",
+    about = "Share code or text without leaving the command line.",
+    setting = structopt::clap::AppSettings::ColoredHelp,
+)]
 struct Opt {
     /// File to process.
     #[structopt(name = "FILE", parse(from_os_str))]
