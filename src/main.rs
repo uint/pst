@@ -43,7 +43,7 @@ fn run_pb() -> std::result::Result<(), Box<dyn std::error::Error>>{
         },
     };
 
-    let bin = Bin::Clbin;
+    let bin = Bin::Termbin;
     let paste = bin.post(&content)?;
 
     #[cfg(debug)]
