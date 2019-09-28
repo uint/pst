@@ -7,7 +7,7 @@ use structopt::StructOpt;
 
 use bins::Bin;
 
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt)]
 #[structopt(
     name = "pb",
     about = "Share code or text without leaving the command line.",
