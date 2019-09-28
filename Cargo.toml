@@ -7,6 +7,7 @@ edition = "2018"
 license = "MIT"
 keywords = ["pastebin", "CLI", "paste"]
 categories = ["command-line-utilities"]
+build = "build.rs"
 
 [dependencies]
 reqwest = "0.9"

@@ -19,8 +19,21 @@ struct Opt {
     file: Option<PathBuf>,
 }
 
-fn main() -> std::result::Result<(), Box<dyn std::error::Error>>{
+fn main() {
+    if let Err(err) = run_pb() {
+        #[cfg(debug)]
+        eprintln!("Error: {:?}", err);
+
+        #[cfg(not(debug))]
+        eprintln!("Error: {}", err);
+
+        std::process::exit(1);
+    }
+}
+
+fn run_pb() -> std::result::Result<(), Box<dyn std::error::Error>>{
     let opt = Opt::from_args();
+
     let content = match opt.file {
         Some(filename) => fs::read_to_string(filename)?,
         None => {
@@ -29,8 +42,10 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>>{
             result
         },
     };
+
     let bin = Bin::Clbin;
     let paste = bin.post(&content)?;
     println!("{}", paste.url());
+
     Ok(())
 }
