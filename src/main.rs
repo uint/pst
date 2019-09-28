@@ -45,6 +45,10 @@ fn run_pb() -> std::result::Result<(), Box<dyn std::error::Error>>{
 
     let bin = Bin::Clbin;
     let paste = bin.post(&content)?;
+
+    #[cfg(debug)]
+    println!("Debug representation of the URL: {:?}", paste.url());
+
     println!("{}", paste.url());
 
     Ok(())
