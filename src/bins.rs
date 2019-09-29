@@ -1,6 +1,8 @@
 use std::io::prelude::*;
 use std::net::TcpStream;
+use std::fmt::Debug;
 
+#[derive(Debug)]
 pub enum Bin {
     Clbin,
     Termbin,

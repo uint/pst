@@ -1,12 +1,10 @@
-mod bins;
+use pb::bins::Bin;
 
 use std::fs;
 use std::fmt;
 use std::io::{self, Read};
 use std::path::PathBuf;
 use structopt::StructOpt;
-
-use bins::Bin;
 
 #[derive(StructOpt)]
 #[structopt(
@@ -20,6 +18,7 @@ struct Opt {
     file: Option<PathBuf>,
 
     /// The pastebin implementation to use.
+    /// Available options: termbin, pastebin, clbin.
     #[structopt(short = "b", long = "bin", default_value = "termbin")]
     bin: String,
 }
