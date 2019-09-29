@@ -1,4 +1,4 @@
-use pb::bins::Bin;
+use pst::bins::Bin;
 use reqwest::Client;
 
 const TEST_STR: &'static str = "test string 123\n324";

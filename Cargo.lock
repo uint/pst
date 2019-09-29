@@ -672,14 +672,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pb"
-version = "0.1.0"
-dependencies = [
- "reqwest 0.9.20 (registry+https://github.com/rust-lang/crates.io-index)",
- "structopt 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "percent-encoding"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -723,6 +715,14 @@ version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "unicode-xid 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "pst"
+version = "0.1.0-alpha.0"
+dependencies = [
+ "reqwest 0.9.20 (registry+https://github.com/rust-lang/crates.io-index)",
+ "structopt 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

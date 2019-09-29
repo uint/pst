@@ -1,4 +1,4 @@
-use pb::bins::Bin;
+use pst::bins::Bin;
 
 use std::fs;
 use std::fmt;
@@ -8,7 +8,7 @@ use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(
-    name = "pb",
+    name = "pst",
     about = "Share code or text without leaving the command line.",
     setting = structopt::clap::AppSettings::ColoredHelp,
 )]
@@ -24,7 +24,7 @@ struct Opt {
 }
 
 fn main() {
-    if let Err(err) = run_pb() {
+    if let Err(err) = run_app() {
         #[cfg(debug)]
         eprintln!("Error: {:?}", err);
 
@@ -35,7 +35,7 @@ fn main() {
     }
 }
 
-fn run_pb() -> std::result::Result<(), Box<dyn std::error::Error>>{
+fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
     let opt = Opt::from_args();
 
     let bin = match &*opt.bin {
