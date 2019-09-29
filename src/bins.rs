@@ -4,6 +4,7 @@ use std::net::TcpStream;
 pub enum Bin {
     Clbin,
     Termbin,
+    Pastebin,
 }
 
 impl Bin {
@@ -20,6 +21,9 @@ impl Bin {
                     .form(&params)
                     .send()?;
 
+                #[cfg(debug)]
+                eprintln!("Status code received: {}", res.status());
+
                 Ok(Paste(res.text()?.trim().to_string()))
             },
             Termbin => {
@@ -31,6 +35,24 @@ impl Bin {
                 stream.read_to_string(&mut res)?;
                 
                 Ok(Paste(res.trim_matches(char::from(0)).trim().to_string()))
+            },
+            Pastebin => {
+                let client = reqwest::Client::new();
+
+                let params = [
+                    ("api_dev_key", "f44aba454f63e16cef1a46d58477481b"),
+                    ("api_option", "paste"),
+                    ("api_paste_code", body),
+                ];
+
+                let mut res = client.post("https://pastebin.com/api/api_post.php")
+                    .form(&params)
+                    .send()?;
+                
+                #[cfg(debug)]
+                eprintln!("Status code received: {}", res.status());
+                
+                Ok(Paste(res.text()?.trim().to_string()))
             },
         }
     }

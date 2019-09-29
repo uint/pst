@@ -42,6 +42,7 @@ fn run_pb() -> std::result::Result<(), Box<dyn std::error::Error>>{
     let bin = match &*opt.bin {
         "termbin" => Bin::Termbin,
         "clbin" => Bin::Clbin,
+        "pastebin" => Bin::Pastebin,
         _ => return Err(Box::new(InvalidPastebinError::new(opt.bin))),
     };
 
