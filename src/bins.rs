@@ -86,17 +86,6 @@ impl Paste {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::bins::Paste;
-
-    #[test]
-    fn paste_get_url() {
-        let paste = Paste("https://fake-paste-bin.org/gjr8ge9rg8j".to_string());
-        assert_eq!(paste.url(), "https://fake-paste-bin.org/gjr8ge9rg8j");
-    }
-}
-
 #[derive(Debug)]
 pub struct InvalidBinError {
     bin_name: String,
@@ -117,3 +106,14 @@ impl fmt::Display for InvalidBinError {
 }
 
 impl std::error::Error for InvalidBinError {}
+
+#[cfg(test)]
+mod tests {
+    use crate::bins::Paste;
+
+    #[test]
+    fn paste_get_url() {
+        let paste = Paste("https://fake-paste-bin.org/gjr8ge9rg8j".to_string());
+        assert_eq!(paste.url(), "https://fake-paste-bin.org/gjr8ge9rg8j");
+    }
+}
