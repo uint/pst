@@ -2,25 +2,9 @@ use pst::bins::Bin;
 
 use std::fs;
 use std::io::{self, Read};
-use std::path::PathBuf;
-use structopt::StructOpt;
+use clap::{Arg, App, AppSettings};
 
-#[derive(StructOpt)]
-#[structopt(
-    name = "pst",
-    about = "Share code or text without leaving the command line.",
-    setting = structopt::clap::AppSettings::ColoredHelp,
-)]
-struct Opt {
-    /// File to process.
-    #[structopt(name = "FILE", parse(from_os_str))]
-    file: Option<PathBuf>,
-
-    /// The pastebin implementation to use.
-    /// Available options: termbin, pastebin, clbin.
-    #[structopt(short = "b", long = "bin", default_value = "termbin")]
-    bin: String,
-}
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 fn main() {
     if let Err(err) = run_app() {
@@ -35,11 +19,39 @@ fn main() {
 }
 
 fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
-    let opt = Opt::from_args();
+    let bins = Bin::bin_iter()
+        .map(|x| {
+            *x.0
+        })
+        .collect::<Vec<&str>>()
+        .join(", ");
 
-    let bin = Bin::get_bin(&*opt.bin)?;
+    let pastebin_help = format!(
+        "The pastebin implementation to use.\n\
+        Available options: {}",
+        bins
+    );
 
-    let content = match opt.file {
+    let opts = App::new("pst")
+                    .setting(AppSettings::ColoredHelp)
+                    .version(VERSION)
+                    .author("Tomasz Kurcz <uint@lavabit.com>")
+                    .about("Share code or text without leaving the command line.")
+                    .arg(Arg::with_name("FILE")
+                        .help("File to send.")
+                        .required(false)
+                        .index(1))
+                    .arg(Arg::with_name("bin")
+                        .short("b")
+                        .long("bin")
+                        .default_value("termbin")
+                        .help(&pastebin_help))
+                    .get_matches();
+
+    let bin_name = opts.value_of("bin").unwrap();
+    let bin = Bin::get_bin(bin_name)?;
+
+    let content = match opts.value_of("FILE") {
         Some(filename) => fs::read_to_string(filename)?,
         None => {
             let mut result = String::new();

@@ -11,5 +11,5 @@ build = "build.rs"
 
 [dependencies]
 reqwest = "0.9"
-structopt = "0.3"
+clap = "2.33.0"
 lazy_static = "1.4.0"
