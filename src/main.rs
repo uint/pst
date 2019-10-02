@@ -1,7 +1,6 @@
 use pst::bins::Bin;
 
 use std::fs;
-use std::fmt;
 use std::io::{self, Read};
 use std::path::PathBuf;
 use structopt::StructOpt;
@@ -38,12 +37,7 @@ fn main() {
 fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
     let opt = Opt::from_args();
 
-    let bin = match &*opt.bin {
-        "termbin" => Bin::Termbin,
-        "clbin" => Bin::Clbin,
-        "pastebin" => Bin::Pastebin,
-        _ => return Err(Box::new(InvalidPastebinError::new(opt.bin))),
-    };
+    let bin = Bin::get_bin(&*opt.bin)?;
 
     let content = match opt.file {
         Some(filename) => fs::read_to_string(filename)?,
@@ -63,24 +57,3 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
 
     Ok(())
 }
-
-#[derive(Debug)]
-struct InvalidPastebinError {
-    bin_name: String,
-}
-
-impl InvalidPastebinError {
-    fn new(bin_name: String) -> InvalidPastebinError {
-        InvalidPastebinError {
-            bin_name,
-        }
-    }
-}
-
-impl fmt::Display for InvalidPastebinError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Invalid pastebin `{}`", self.bin_name)
-    }
-}
-
-impl std::error::Error for InvalidPastebinError {}

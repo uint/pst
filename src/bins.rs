@@ -1,6 +1,18 @@
+use lazy_static::lazy_static;
 use std::io::prelude::*;
 use std::net::TcpStream;
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
+use std::collections::HashMap;
+
+lazy_static! {
+    static ref BINS: HashMap<&'static str, Bin> = {
+        let mut m = HashMap::new();
+        m.insert("clbin", Bin::Clbin);
+        m.insert("termbin", Bin::Termbin);
+        m.insert("pastebin", Bin::Pastebin);
+        m
+    };
+}
 
 #[derive(Debug)]
 pub enum Bin {
@@ -10,6 +22,11 @@ pub enum Bin {
 }
 
 impl Bin {
+    pub fn get_bin(name: &str) -> Result<&Bin, InvalidBinError> {
+        BINS.get(name)
+            .ok_or(InvalidBinError::new(String::from(name)))
+    }
+
     pub fn post(&self, body: &str) -> std::result::Result<Paste, Box<dyn std::error::Error>> {
         use Bin::*;
 
@@ -79,3 +96,24 @@ mod tests {
         assert_eq!(paste.url(), "https://fake-paste-bin.org/gjr8ge9rg8j");
     }
 }
+
+#[derive(Debug)]
+pub struct InvalidBinError {
+    bin_name: String,
+}
+
+impl InvalidBinError {
+    fn new(bin_name: String) -> InvalidBinError {
+        InvalidBinError {
+            bin_name,
+        }
+    }
+}
+
+impl fmt::Display for InvalidBinError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Invalid pastebin `{}`", self.bin_name)
+    }
+}
+
+impl std::error::Error for InvalidBinError {}

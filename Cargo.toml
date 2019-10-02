@@ -12,3 +12,4 @@ build = "build.rs"
 [dependencies]
 reqwest = "0.9"
 structopt = "0.3"
+lazy_static = "1.4.0"
