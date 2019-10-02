@@ -4,21 +4,13 @@ use reqwest::Client;
 const TEST_STR: &'static str = "test string 123\n324";
 
 #[test]
-fn clbin() {
-    assert!(test_bin(Bin::Clbin));
+fn test_all_the_bins() {
+    for (_, bin) in Bin::bin_iter() {
+        assert!(test_bin(bin));
+    }
 }
 
-#[test]
-fn termbin() {
-    assert!(test_bin(Bin::Termbin));
-}
-
-#[test]
-fn pastebin() {
-    assert!(test_bin(Bin::Pastebin));
-}
-
-fn test_bin(bin: Bin) -> bool {
+fn test_bin(bin: &Bin) -> bool {
     let paste = bin.post(TEST_STR).unwrap();
 
     println!("Got the URL {:?} when testing {:?}", paste.url(), bin);

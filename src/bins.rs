@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::fmt::{self, Debug};
-use std::collections::HashMap;
+use std::collections::{hash_map, HashMap};
 
 lazy_static! {
     static ref BINS: HashMap<&'static str, Bin> = {
@@ -25,6 +25,10 @@ impl Bin {
     pub fn get_bin(name: &str) -> Result<&Bin, InvalidBinError> {
         BINS.get(name)
             .ok_or(InvalidBinError::new(String::from(name)))
+    }
+
+    pub fn bin_iter() -> hash_map::Iter<'static, &'static str, Bin> {
+        BINS.iter()
     }
 
     pub fn post(&self, body: &str) -> std::result::Result<Paste, Box<dyn std::error::Error>> {
