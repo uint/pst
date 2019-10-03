@@ -3,6 +3,7 @@ use std::io::prelude::*;
 use std::net::TcpStream;
 use std::fmt::{self, Debug};
 use std::collections::{hash_map, HashMap};
+use std::error::Error;
 
 lazy_static! {
     static ref BINS: HashMap<&'static str, Bin> = {
@@ -31,7 +32,7 @@ impl Bin {
         BINS.iter()
     }
 
-    pub fn post(&self, body: &str) -> std::result::Result<Paste, Box<dyn std::error::Error>> {
+    pub fn post(&self, body: &str) -> Result<Paste, Box<dyn Error>> {
         use Bin::*;
 
         match self {
@@ -41,13 +42,15 @@ impl Bin {
                 let params = [("clbin", body)];
 
                 let mut res = client.post("https://clbin.com")
-                    .form(&params)
-                    .send()?;
+                                .form(&params)
+                                .send()?;
 
                 #[cfg(debug)]
                 eprintln!("Status code received: {}", res.status());
 
-                Ok(Paste(res.text()?.trim().to_string()))
+                Ok(Paste(res.text()?
+                            .trim().
+                            to_string()))
             },
             Termbin => {
                 let mut stream = TcpStream::connect("termbin.com:9999")?;
