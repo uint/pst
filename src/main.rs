@@ -63,7 +63,7 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
     let paste = bin.post(&content)?;
 
     #[cfg(debug)]
-    println!("Debug representation of the URL: {:?}", paste.url());
+    println!("Debug representation of the Paste:\n{:?}", paste);
 
     println!("{}", paste.url());
 

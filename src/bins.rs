@@ -4,6 +4,7 @@ use std::net::TcpStream;
 use std::fmt::{self, Debug};
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
+use serde::Deserialize;
 
 lazy_static! {
     static ref BINS: HashMap<&'static str, Bin> = {
@@ -11,6 +12,7 @@ lazy_static! {
         m.insert("clbin", Bin::Clbin);
         m.insert("termbin", Bin::Termbin);
         m.insert("pastebin", Bin::Pastebin);
+        m.insert("hastebin", Bin::Hastebin);
         m
     };
 }
@@ -20,6 +22,7 @@ pub enum Bin {
     Clbin,
     Termbin,
     Pastebin,
+    Hastebin,
 }
 
 impl Bin {
@@ -48,9 +51,12 @@ impl Bin {
                 #[cfg(debug)]
                 eprintln!("Status code received: {}", res.status());
 
-                Ok(Paste(res.text()?
-                            .trim().
-                            to_string()))
+                Ok(Paste::new(
+                    res.text()?
+                        .trim().
+                        to_string(),
+                    None,
+                ))
             },
             Termbin => {
                 let mut stream = TcpStream::connect("termbin.com:9999")?;
@@ -60,7 +66,10 @@ impl Bin {
                 let mut res = String::new();
                 stream.read_to_string(&mut res)?;
                 
-                Ok(Paste(res.trim_matches(char::from(0)).trim().to_string()))
+                Ok(Paste::new(
+                    res.trim_matches(char::from(0)).trim().to_string(),
+                    None,
+                ))
             },
             Pastebin => {
                 let client = reqwest::Client::new();
@@ -78,18 +87,60 @@ impl Bin {
                 #[cfg(debug)]
                 eprintln!("Status code received: {}", res.status());
                 
-                Ok(Paste(res.text()?.trim().to_string()))
+                Ok(Paste::new(
+                    res.text()?.trim().to_string(),
+                    None,
+                ))
+            },
+            Hastebin => {
+                let client = reqwest::Client::new();
+
+                let mut res = client.post("https://hastebin.com/documents/")
+                                .body(body.to_string())
+                                .send()?;
+
+                #[cfg(debug)]
+                eprintln!("Status code received: {}", res.status());
+
+                #[derive(Deserialize)]
+                struct Response {
+                    key: String,
+                }
+
+                let res: Response = res.json()?;
+
+                Ok(Paste::new(
+                    format!("https://hastebin.com/{}", res.key),
+                    Some(format!("https://hastebin.com/documents/{}", res.key)),
+                ))
             },
         }
     }
 }
 
-pub struct Paste(String);
+#[derive(Debug)]
+pub struct Paste {
+    url: String,
+    api_url: Option<String>,
+}
 
 impl Paste {
+    pub fn new(url: String, api_url: Option<String>) -> Paste {
+        Paste {
+            url,
+            api_url,
+        }
+    }
+
     pub fn url(&self) -> &str {
-        let Paste(url) = self;
-        &url
+        &self.url
+    }
+
+    pub fn api_url(&self) -> &str {
+       match &self.api_url {
+           Some(url) => url,
+           None => &self.url,
+       }
     }
 }
 
@@ -120,7 +171,10 @@ mod tests {
 
     #[test]
     fn paste_get_url() {
-        let paste = Paste("https://fake-paste-bin.org/gjr8ge9rg8j".to_string());
+        let paste = Paste::new(
+            "https://fake-paste-bin.org/gjr8ge9rg8j".to_string(),
+            None,
+        );
         assert_eq!(paste.url(), "https://fake-paste-bin.org/gjr8ge9rg8j");
     }
 }
