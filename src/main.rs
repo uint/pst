@@ -50,7 +50,7 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
                     .get_matches();
 
     let backend_name = opts.value_of("backend").unwrap();
-    let backend = Backend::get_backend(backend_name)?;
+    let bin = Bin::from_str(backend_name)?;
 
     let content = match opts.value_of("FILE") {
         Some(filename) => fs::read_to_string(filename)?,
@@ -61,7 +61,7 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
         },
     };
 
-    let paste = backend.post(&content)?;
+    let paste = bin.post(&content)?;
 
     #[cfg(debug)]
     println!("Debug representation of the Paste:\n{:?}", paste);
