@@ -1,4 +1,5 @@
 use pst::bins::Bin;
+use pst::backends::Backend;
 
 use std::fs;
 use std::io::{self, Read};
@@ -19,17 +20,17 @@ fn main() {
 }
 
 fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
-    let bins = Bin::bin_iter()
+    let backends = Backend::backend_iter()
         .map(|x| {
             *x.0
         })
         .collect::<Vec<&str>>()
         .join(", ");
 
-    let pastebin_help = format!(
-        "The pastebin implementation to use.\n\
+    let backend_help = format!(
+        "The backend to use.\n\
         Available options: {}",
-        bins
+        backends
     );
 
     let opts = App::new("pst")
@@ -41,15 +42,15 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
                         .help("File to send.")
                         .required(false)
                         .index(1))
-                    .arg(Arg::with_name("bin")
+                    .arg(Arg::with_name("backend")
                         .short("b")
-                        .long("bin")
+                        .long("backend")
                         .default_value("termbin")
-                        .help(&pastebin_help))
+                        .help(&backend_help))
                     .get_matches();
 
-    let bin_name = opts.value_of("bin").unwrap();
-    let bin = Bin::get_bin(bin_name)?;
+    let backend_name = opts.value_of("backend").unwrap();
+    let backend = Backend::get_backend(backend_name)?;
 
     let content = match opts.value_of("FILE") {
         Some(filename) => fs::read_to_string(filename)?,
@@ -60,7 +61,7 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
         },
     };
 
-    let paste = bin.post(&content)?;
+    let paste = backend.post(&content)?;
 
     #[cfg(debug)]
     println!("Debug representation of the Paste:\n{:?}", paste);

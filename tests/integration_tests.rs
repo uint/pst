@@ -1,19 +1,19 @@
-use pst::bins::Bin;
+use pst::backends::Backend;
 use reqwest::Client;
 
 const TEST_STR: &'static str = "test string 123fd93f324";
 
 #[test]
-fn test_all_the_bins() {
-    for (_, bin) in Bin::bin_iter() {
-        assert!(test_bin(bin));
+fn test_all_the_backends() {
+    for (_, backend) in Backend::backend_iter() {
+        assert!(test_backend(backend));
     }
 }
 
-fn test_bin(bin: &Bin) -> bool {
-    let paste = bin.post(TEST_STR).unwrap();
+fn test_backend(backend: &Backend) -> bool {
+    let paste = backend.post(TEST_STR).unwrap();
 
-    println!("Got the API URL {:?} when testing {:?}", paste.api_url(), bin);
+    println!("Got the API URL {:?} when testing {:?}", paste.api_url(), backend);
 
     let client = Client::new();
 
