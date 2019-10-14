@@ -19,7 +19,7 @@ fn main() {
     }
 }
 
-fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>>{
+fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let backends = Backend::backend_iter()
         .map(|x| {
             *x.0
