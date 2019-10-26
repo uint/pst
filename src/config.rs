@@ -19,7 +19,7 @@ lazy_static! {
                     .as_ref()
             ).unwrap(),
             FileFormat::Toml,
-        ));
+        )).unwrap();
         c
     };
 }
