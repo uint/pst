@@ -1,5 +1,6 @@
 use pst::bins::Bin;
 use pst::backends::Backend;
+use pst::config;
 
 use std::fs;
 use std::io::{self, Read};
@@ -20,6 +21,9 @@ fn main() {
 }
 
 fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    let cfg = config::pst_config()?;
+    let default_bin = cfg.bin();
+
     let backends = Backend::backend_iter()
         .map(|x| {
             *x.0
@@ -45,12 +49,16 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>> {
                     .arg(Arg::with_name("backend")
                         .short("b")
                         .long("backend")
-                        .default_value("termbin")
+                        .default_value(default_bin)
                         .help(&backend_help))
                     .get_matches();
 
     let backend_name = opts.value_of("backend").unwrap();
-    let bin = Bin::from_str(backend_name)?;
+    let cfg = config::bin_config(backend_name)?;
+    let bin = Bin::from_str(
+        backend_name,
+        &cfg,
+    )?;
 
     let content = match opts.value_of("FILE") {
         Some(filename) => fs::read_to_string(filename)?,
