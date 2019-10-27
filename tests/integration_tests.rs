@@ -1,4 +1,5 @@
 use pst::bins::Bin;
+use pst::config;
 use pst::backends::{Backend, InvalidBackendError};
 use reqwest::Client;
 
@@ -14,7 +15,11 @@ fn test_all_the_backends() {
 #[test]
 fn test_all_the_bins() -> Result<(), InvalidBackendError> {
     for (backend_name, _) in Backend::backend_iter() {
-        assert!(test_bin(Bin::from_str(backend_name)?));
+        let cfg = config::bin_config(backend_name).expect("");
+        assert!(test_bin(Bin::from_str(
+            backend_name,
+            &cfg,
+        )?));
     };
     Ok(())
 }

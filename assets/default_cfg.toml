@@ -1,0 +1,13 @@
+bin = "termbin"
+
+[termbin]
+host = ""
+
+[pastebin]
+host = ""
+
+[clbin]
+host = ""
+
+[hastebin]
+host = ""

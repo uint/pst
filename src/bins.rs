@@ -1,17 +1,27 @@
 use crate::backends::{Backend, InvalidBackendError, Paste};
+use serde::Deserialize;
 
 use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct Bin<'a> {
     backend: &'a Backend,
+    config: &'a BinConfig,
 }
 
-impl Bin<'_> {
-    pub fn from_str(backend: &str) -> Result<Bin, InvalidBackendError> {
+#[derive(Debug, Deserialize)]
+pub struct BinConfig {
+    host: String,
+}
+
+impl<'a> Bin<'a> {
+    pub fn from_str(backend: &'a str, cfg: &'a BinConfig) -> Result<Bin<'a>, InvalidBackendError> {
+        let backend = Backend::get_backend(backend)?;
+
         Ok(
             Bin {
-                backend: Backend::get_backend(backend)?,
+                backend: backend,
+                config: cfg,
             }
         )
     }
@@ -27,13 +37,22 @@ impl Bin<'_> {
 
 #[test]
 fn bin_from_nonexistent_backend() {
-    assert!(Bin::from_str("").is_err());
-    assert!(Bin::from_str("non_existent_backend_123").is_err());
+    let cfg = BinConfig{
+        host: "bleh".to_string(),
+    };
+
+    assert!(Bin::from_str("", &cfg).is_err());
+    assert!(Bin::from_str("non_existent_backend_123", &cfg).is_err());
 }
 
 #[test]
 fn create_bin_from_str() -> Result<(), String> {
-    let bin = Bin::from_str("clbin").expect("Cannot create Bin from `clbin`!");
+    let cfg = BinConfig {
+        host: "bleh".to_string(),
+    };
+
+    let bin = Bin::from_str("clbin", &cfg)
+        .expect("Cannot create Bin from `clbin`!");
     match bin.backend {
         Backend::Clbin => Ok(()),
         _ => Err(String::from("The created bin's backend wasn't clbin!"))

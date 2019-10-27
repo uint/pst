@@ -1,9 +1,10 @@
-use lazy_static::lazy_static;
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::fmt::{self, Debug};
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
+
+use lazy_static::lazy_static;
 use serde::Deserialize;
 
 lazy_static! {
