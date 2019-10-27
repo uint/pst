@@ -51,7 +51,15 @@ fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>> {
                         .long("backend")
                         .default_value(default_bin)
                         .help(&backend_help))
+                    .arg(Arg::with_name("write-config")
+                        .short("w")
+                        .long("write-config")
+                        .help("Write the default config to disk."))
                     .get_matches();
+
+    if opts.is_present("write-config") {
+        return config::write_default_cfg()
+    }
 
     let backend_name = opts.value_of("backend").unwrap();
     let cfg = config::bin_config(backend_name)?;

@@ -1,8 +1,10 @@
 use std::str;
 use std::path::PathBuf;
+use std::error::Error;
+use std::io::Write;
 
 use serde::Deserialize;
-use config::{self, ConfigError, File, FileFormat};
+use config::{self, ConfigError, FileFormat};
 use lazy_static::lazy_static;
 use rust_embed::RustEmbed;
 use app_dirs::{self, AppDataType, AppInfo, AppDirsError};
@@ -20,7 +22,7 @@ lazy_static! {
         let mut c = config::Config::new();
 
         // The default config, embedded using `rust_embed`
-        c.merge(File::from_str(
+        c.merge(config::File::from_str(
             str::from_utf8(
                 Assets::get("default_cfg.toml")
                     .unwrap()
@@ -29,13 +31,13 @@ lazy_static! {
             FileFormat::Toml,
         )).unwrap();
 
-        if let Ok(path) = path_to_user_conf() {
+        if let Ok(path) = path_to_user_cfg() {
             let path = path.to_str().unwrap();
             
             #[cfg(debug)]
             eprintln!("User config path: {:?}", path);
 
-            c.merge(File::with_name(path).required(false))
+            c.merge(config::File::with_name(path).required(false))
                 .unwrap();
         }
 
@@ -43,11 +45,22 @@ lazy_static! {
     };
 }
 
-fn path_to_user_conf() -> Result<PathBuf, AppDirsError> {
+fn path_to_user_cfg() -> Result<PathBuf, AppDirsError> {
     Ok(app_dirs::app_root(
         AppDataType::UserConfig,
         &APP_INFO,
     )?.join("cfg"))
+}
+
+pub fn write_default_cfg() -> Result<(), Box<dyn Error>> {
+    let mut path = path_to_user_cfg()?;
+    path.set_extension("toml");
+    let mut file = std::fs::File::create(&path)?;
+    file.write_all(
+        Assets::get("default_cfg.toml").unwrap().as_ref()
+    )?;
+    eprintln!("Default config successfully written to: {:?}", &path);
+    Ok(())
 }
 
 #[derive(Debug, Deserialize)]
