@@ -1,9 +1,15 @@
+use std::str;
+use std::path::PathBuf;
+
 use serde::Deserialize;
 use config::{self, ConfigError, File, FileFormat};
 use lazy_static::lazy_static;
 use rust_embed::RustEmbed;
+use app_dirs::{self, AppDataType, AppInfo, AppDirsError};
+
 use crate::bins::BinConfig;
-use std::str;
+
+const APP_INFO: AppInfo = AppInfo{name: "pst", author: "Tomasz Kurcz"};
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
@@ -12,6 +18,8 @@ struct Assets;
 lazy_static! {
     static ref CFG: config::Config = {
         let mut c = config::Config::new();
+
+        // The default config, embedded using `rust_embed`
         c.merge(File::from_str(
             str::from_utf8(
                 Assets::get("default_cfg.toml")
@@ -20,8 +28,26 @@ lazy_static! {
             ).unwrap(),
             FileFormat::Toml,
         )).unwrap();
+
+        if let Ok(path) = path_to_user_conf() {
+            let path = path.to_str().unwrap();
+            
+            #[cfg(debug)]
+            eprintln!("User config path: {:?}", path);
+
+            c.merge(File::with_name(path).required(false))
+                .unwrap();
+        }
+
         c
     };
+}
+
+fn path_to_user_conf() -> Result<PathBuf, AppDirsError> {
+    Ok(app_dirs::app_root(
+        AppDataType::UserConfig,
+        &APP_INFO,
+    )?.join("cfg"))
 }
 
 #[derive(Debug, Deserialize)]
