@@ -5,7 +5,7 @@ use reqwest::Client;
 
 const TEST_STR: &'static str = "test string 123fd93f324";
 
-#[test]
+#[test] #[ignore] // needs a better approach
 fn test_all_the_bins() -> Result<(), InvalidBackendError> {
     for (backend_name, _) in Backend::backend_iter() {
         let cfg = config::bin_config(backend_name).expect("");
