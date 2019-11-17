@@ -4,6 +4,8 @@ use std::fmt::{self, Debug};
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
 
+use crate::bins::BinConfig;
+
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
@@ -36,7 +38,7 @@ impl Backend {
         BACKENDS.iter()
     }
 
-    pub fn post(&self, body: &str) -> Result<Paste, Box<dyn Error>> {
+    pub fn post(&self, body: &str, cfg: &BinConfig) -> Result<Paste, Box<dyn Error>> {
         use Backend::*;
 
         match self {
@@ -45,7 +47,7 @@ impl Backend {
 
                 let params = [("clbin", body)];
 
-                let mut res = client.post("https://clbin.com")
+                let mut res = client.post(&cfg.host)
                                 .form(&params)
                                 .send()?;
 
@@ -60,7 +62,7 @@ impl Backend {
                 ))
             },
             Termbin => {
-                let mut stream = TcpStream::connect("termbin.com:9999")?;
+                let mut stream = TcpStream::connect(&cfg.host)?;
 
                 stream.write_fmt(format_args!("{}", body))?;
 
@@ -81,7 +83,7 @@ impl Backend {
                     ("api_paste_code", body),
                 ];
 
-                let mut res = client.post("https://pastebin.com/api/api_post.php")
+                let mut res = client.post(&cfg.host)
                     .form(&params)
                     .send()?;
                 
@@ -96,7 +98,9 @@ impl Backend {
             Hastebin => {
                 let client = reqwest::Client::new();
 
-                let mut res = client.post("https://hastebin.com/documents/")
+                let url = format!("{}documents/", cfg.host);
+
+                let mut res = client.post(&url)
                                 .body(body.to_string())
                                 .send()?;
 
@@ -111,8 +115,8 @@ impl Backend {
                 let res: Response = res.json()?;
 
                 Ok(Paste::new(
-                    format!("https://hastebin.com/{}", res.key),
-                    Some(format!("https://hastebin.com/documents/{}", res.key)),
+                    format!("{}{}", cfg.host, res.key),
+                    Some(format!("{}documents/{}", cfg.host, res.key)),
                 ))
             },
         }

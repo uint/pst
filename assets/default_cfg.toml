@@ -1,13 +1,13 @@
 bin = "termbin"
 
 [termbin]
-host = ""
+host = "termbin.com:9999"
 
 [pastebin]
-host = ""
+host = "https://pastebin.com/api/api_post.php"
 
 [clbin]
-host = ""
+host = "https://clbin.com"
 
 [hastebin]
-host = ""
+host = "https://hastebin.com/"

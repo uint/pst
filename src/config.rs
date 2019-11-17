@@ -45,6 +45,43 @@ lazy_static! {
     };
 }
 
+pub struct ConfigStore {
+    data: config::Config,
+}
+
+impl ConfigStore {
+    pub fn new() -> Result<ConfigStore, Box<dyn Error>> {
+        let mut c = config::Config::new();
+
+        // The default config, embedded using `rust_embed`
+        c.merge(config::File::from_str(
+            str::from_utf8(
+                Assets::get("default_cfg.toml")
+                    .unwrap()
+                    .as_ref()
+            ).unwrap(),
+            FileFormat::Toml,
+        )).unwrap();
+
+        // User config found in the default location (usually home dir)
+        if let Ok(path) = path_to_user_cfg() {
+            let path = path.to_str().unwrap();
+            
+            #[cfg(debug)]
+            eprintln!("User config path: {:?}", path);
+
+            c.merge(config::File::with_name(path).required(false))
+                .unwrap();
+        }
+
+        Ok(
+            ConfigStore{
+                data: c,
+            }
+        )
+    }
+}
+
 fn path_to_user_cfg() -> Result<PathBuf, AppDirsError> {
     Ok(app_dirs::app_root(
         AppDataType::UserConfig,

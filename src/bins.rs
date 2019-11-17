@@ -11,7 +11,7 @@ pub struct Bin<'a> {
 
 #[derive(Debug, Deserialize)]
 pub struct BinConfig {
-    host: String,
+    pub host: String,
 }
 
 impl<'a> Bin<'a> {
@@ -31,7 +31,7 @@ impl<'a> Bin<'a> {
     // }
 
     pub fn post(&self, body: &str) -> Result<Paste, Box<dyn std::error::Error>> {
-        self.backend.post(body)
+        self.backend.post(body, &self.config)
     }
 }
 

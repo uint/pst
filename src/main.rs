@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use pst::bins::Bin;
 use pst::backends::Backend;
 use pst::config;
@@ -20,7 +22,7 @@ fn main() {
     }
 }
 
-fn run_app() -> std::result::Result<(), Box<dyn std::error::Error>> {
+fn run_app() -> Result<(), Box<dyn Error>> {
     let cfg = config::pst_config()?;
     let default_bin = cfg.bin();
 
