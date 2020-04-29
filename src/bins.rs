@@ -31,7 +31,7 @@ impl<'a> Bin<'a> {
     // }
 
     pub fn post(&self, body: &str) -> Result<Paste, Box<dyn std::error::Error>> {
-        self.backend.post(body, &self.config)
+        self.backend.post(body, &self.config.host)
     }
 }
 

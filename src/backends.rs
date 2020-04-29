@@ -4,8 +4,6 @@ use std::fmt::{self, Debug};
 use std::collections::{hash_map, HashMap};
 use std::error::Error;
 
-use crate::bins::BinConfig;
-
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
@@ -38,8 +36,8 @@ impl Backend {
         BACKENDS.iter()
     }
 
-    pub fn post(&self, body: &str, cfg: &BinConfig) -> Result<Paste, Box<dyn Error>> {
-        use Backend::*;
+    pub fn post(&self, body: &str, host: &str) -> Result<Paste, Box<dyn Error>> {
+        use crate::backends::Backend::*;
 
         match self {
             Clbin => {
@@ -47,7 +45,7 @@ impl Backend {
 
                 let params = [("clbin", body)];
 
-                let mut res = client.post(&cfg.host)
+                let mut res = client.post(host)
                                 .form(&params)
                                 .send()?;
 
@@ -62,7 +60,7 @@ impl Backend {
                 ))
             },
             Termbin => {
-                let mut stream = TcpStream::connect(&cfg.host)?;
+                let mut stream = TcpStream::connect(host)?;
 
                 stream.write_fmt(format_args!("{}", body))?;
 
@@ -83,7 +81,7 @@ impl Backend {
                     ("api_paste_code", body),
                 ];
 
-                let mut res = client.post(&cfg.host)
+                let mut res = client.post(host)
                     .form(&params)
                     .send()?;
                 
@@ -98,7 +96,7 @@ impl Backend {
             Hastebin => {
                 let client = reqwest::Client::new();
 
-                let url = format!("{}documents/", cfg.host);
+                let url = format!("{}documents/", host);
 
                 let mut res = client.post(&url)
                                 .body(body.to_string())
@@ -115,8 +113,8 @@ impl Backend {
                 let res: Response = res.json()?;
 
                 Ok(Paste::new(
-                    format!("{}{}", cfg.host, res.key),
-                    Some(format!("{}documents/{}", cfg.host, res.key)),
+                    format!("{}{}", host, res.key),
+                    Some(format!("{}documents/{}", host, res.key)),
                 ))
             },
         }
