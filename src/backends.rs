@@ -3,7 +3,6 @@ use std::net::TcpStream;
 use std::fmt::{self, Debug};
 use std::error::Error;
 use std::str::FromStr;
-use std::iter::Map;
 
 use serde::Deserialize;
 use strum_macros::{EnumString, EnumIter, Display};
