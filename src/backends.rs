@@ -1,24 +1,16 @@
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::fmt::{self, Debug};
-use std::collections::{hash_map, HashMap};
 use std::error::Error;
+use std::str::FromStr;
+use std::iter::Map;
 
-use lazy_static::lazy_static;
 use serde::Deserialize;
+use strum_macros::{EnumString, EnumIter, Display};
+use strum::IntoEnumIterator;
 
-lazy_static! {
-    static ref BACKENDS: HashMap<&'static str, Backend> = {
-        let mut m = HashMap::new();
-        m.insert("clbin", Backend::Clbin);
-        m.insert("termbin", Backend::Termbin);
-        m.insert("pastebin", Backend::Pastebin);
-        m.insert("hastebin", Backend::Hastebin);
-        m
-    };
-}
-
-#[derive(Debug)]
+#[derive(Debug, Display, EnumIter, EnumString)]
+#[strum(serialize_all = "snake_case")]
 pub enum Backend {
     Clbin,
     Termbin,
@@ -27,13 +19,12 @@ pub enum Backend {
 }
 
 impl Backend {
-    pub fn get_backend(name: &str) -> Result<&Backend, InvalidBackendError> {
-        BACKENDS.get(name)
-            .ok_or(InvalidBackendError::new(String::from(name)))
+    pub fn get_backend(name: &str) -> Result<Backend, InvalidBackendError> {
+        Backend::from_str(name).map_err(|_| InvalidBackendError::new(String::from(name)))
     }
 
-    pub fn backend_iter() -> hash_map::Iter<'static, &'static str, Backend> {
-        BACKENDS.iter()
+    pub fn backends_iter() -> BackendIter {
+        Backend::iter()
     }
 
     pub fn post(&self, body: &str, host: &str) -> Result<Paste, Box<dyn Error>> {

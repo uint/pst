@@ -5,7 +5,7 @@ use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct Bin<'a> {
-    backend: &'a Backend,
+    backend: Backend,
     config: &'a BinConfig,
 }
 

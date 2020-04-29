@@ -7,10 +7,11 @@ const TEST_STR: &'static str = "test string 123fd93f324";
 
 #[test] #[ignore] // needs a better approach
 fn test_all_the_bins() -> Result<(), InvalidBackendError> {
-    for (backend_name, _) in Backend::backend_iter() {
-        let cfg = config::bin_config(backend_name).expect("");
+    for backend in Backend::backends_iter() {
+        let backend_name = backend.to_string();
+        let cfg = config::bin_config(&backend_name).expect("");
         assert!(test_bin(Bin::from_str(
-            backend_name,
+            &backend_name,
             &cfg,
         )?));
     };

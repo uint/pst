@@ -26,11 +26,9 @@ fn run_app() -> Result<(), Box<dyn Error>> {
     let cfg = config::pst_config()?;
     let default_bin = cfg.bin();
 
-    let backends = Backend::backend_iter()
-        .map(|x| {
-            *x.0
-        })
-        .collect::<Vec<&str>>()
+    let backends = Backend::backends_iter()
+        .map(|x| x.to_string())
+        .collect::<Vec<_>>()
         .join(", ");
 
     let backend_help = format!(
