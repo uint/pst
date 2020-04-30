@@ -62,11 +62,12 @@ fn run_app() -> Result<(), Box<dyn Error>> {
     }
 
     let backend_name = opts.value_of("backend").unwrap();
+    let backend = Backend::get_backend(&backend_name)?;
     let cfg = config::bin_config(backend_name)?;
-    let bin = Bin::from_str(
-        backend_name,
+    let bin = Bin::new(
+        backend,
         &cfg,
-    )?;
+    );
 
     let content = match opts.value_of("FILE") {
         Some(filename) => fs::read_to_string(filename)?,

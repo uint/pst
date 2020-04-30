@@ -10,10 +10,10 @@ fn test_all_the_bins() -> Result<(), InvalidBackendError> {
     for backend in Backend::backends_iter() {
         let backend_name = backend.to_string();
         let cfg = config::bin_config(&backend_name).expect("");
-        assert!(test_bin(Bin::from_str(
-            &backend_name,
+        assert!(test_bin(Bin::new(
+            backend,
             &cfg,
-        )?));
+        )));
     };
     Ok(())
 }
