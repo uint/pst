@@ -1,15 +1,19 @@
 use pst::bins::Bin;
-use pst::config;
-use pst::backends::{Backend, InvalidBackendError};
+use pst::config::ConfigStore;
+use pst::backends::Backend;
 use reqwest::Client;
 
 const TEST_STR: &'static str = "test string 123fd93f324";
 
+type BoxError = Box<dyn std::error::Error>;
+
 #[test] #[ignore] // needs a better approach
-fn test_all_the_bins() -> Result<(), InvalidBackendError> {
+fn test_all_the_bins() -> Result<(), BoxError> {
+    let cfg_store = ConfigStore::new()?;
+
     for backend in Backend::backends_iter() {
         let backend_name = backend.to_string();
-        let cfg = config::bin_config(&backend_name).expect("");
+        let cfg = cfg_store.bin_config(&backend_name).expect("");
         assert!(test_bin(Bin::new(
             backend,
             &cfg,

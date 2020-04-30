@@ -5,7 +5,6 @@ use std::io::Write;
 
 use serde::Deserialize;
 use config::{self, ConfigError, FileFormat};
-use lazy_static::lazy_static;
 use rust_embed::RustEmbed;
 use app_dirs::{self, AppDataType, AppInfo, AppDirsError};
 
@@ -16,34 +15,6 @@ const APP_INFO: AppInfo = AppInfo{name: "pst", author: "Tomasz Kurcz"};
 #[derive(RustEmbed)]
 #[folder = "assets/"]
 struct Assets;
-
-lazy_static! {
-    static ref CFG: config::Config = {
-        let mut c = config::Config::new();
-
-        // The default config, embedded using `rust_embed`
-        c.merge(config::File::from_str(
-            str::from_utf8(
-                Assets::get("default_cfg.toml")
-                    .unwrap()
-                    .as_ref()
-            ).unwrap(),
-            FileFormat::Toml,
-        )).unwrap();
-
-        if let Ok(path) = path_to_user_cfg() {
-            let path = path.to_str().unwrap();
-            
-            #[cfg(debug)]
-            eprintln!("User config path: {:?}", path);
-
-            c.merge(config::File::with_name(path).required(false))
-                .unwrap();
-        }
-
-        c
-    };
-}
 
 pub struct ConfigStore {
     data: config::Config,
@@ -80,6 +51,14 @@ impl ConfigStore {
             }
         )
     }
+
+    pub fn pst_config(&self) -> Result<PstConfig, ConfigError> {
+        self.data.clone().try_into()
+    }
+
+    pub fn bin_config(&self, name: &str) -> Result<BinConfig, ConfigError> {
+        self.data.get(name)
+    }
 }
 
 fn path_to_user_cfg() -> Result<PathBuf, AppDirsError> {
@@ -109,12 +88,4 @@ impl PstConfig {
     pub fn bin(&self) -> &str {
         &self.bin
     }
-}
-
-pub fn pst_config() -> Result<PstConfig, ConfigError> {
-    CFG.clone().try_into()
-}
-
-pub fn bin_config(name: &str) -> Result<BinConfig, ConfigError> {
-    CFG.get(name)
 }

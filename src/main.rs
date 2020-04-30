@@ -2,7 +2,7 @@ use std::error::Error;
 
 use pst::bins::Bin;
 use pst::backends::Backend;
-use pst::config;
+use pst::config::{self, ConfigStore};
 
 use std::fs;
 use std::io::{self, Read};
@@ -23,7 +23,8 @@ fn main() {
 }
 
 fn run_app() -> Result<(), Box<dyn Error>> {
-    let cfg = config::pst_config()?;
+    let cfg_store = ConfigStore::new()?;
+    let cfg = cfg_store.pst_config()?;
     let default_bin = cfg.bin();
 
     let backends = Backend::backends_iter()
@@ -63,7 +64,7 @@ fn run_app() -> Result<(), Box<dyn Error>> {
 
     let backend_name = opts.value_of("backend").unwrap();
     let backend = Backend::get_backend(&backend_name)?;
-    let cfg = config::bin_config(backend_name)?;
+    let cfg = cfg_store.bin_config(backend_name)?;
     let bin = Bin::new(
         backend,
         &cfg,
