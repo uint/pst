@@ -30,9 +30,9 @@ impl ConfigStore {
                 Assets::get("default_cfg.toml")
                     .unwrap()
                     .as_ref()
-            ).unwrap(),
+            )?,
             FileFormat::Toml,
-        )).unwrap();
+        ))?;
 
         // User config found in the default location (usually home dir)
         if let Ok(path) = path_to_user_cfg() {
@@ -41,8 +41,7 @@ impl ConfigStore {
             #[cfg(debug)]
             eprintln!("User config path: {:?}", path);
 
-            c.merge(config::File::with_name(path).required(false))
-                .unwrap();
+            c.merge(config::File::with_name(path).required(false))?;
         }
 
         Ok(
