@@ -8,8 +8,9 @@ use serde::Deserialize;
 use strum_macros::{EnumString, EnumIter, Display};
 use strum::IntoEnumIterator;
 
-#[derive(Debug, Display, EnumIter, EnumString, Clone, Copy)]
+#[derive(Debug, Display, Deserialize, EnumIter, EnumString, Clone, Copy)]
 #[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum Backend {
     Clbin,
     Termbin,

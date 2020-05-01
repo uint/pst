@@ -16,7 +16,7 @@ fn test_all_the_bins() -> Result<(), BoxError> {
         let cfg = cfg_store.bin_config(&backend_name).expect("");
         assert!(test_bin(BinOwned::new(
             backend,
-            &cfg,
+            cfg.host,
         )));
     };
     Ok(())

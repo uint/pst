@@ -12,32 +12,18 @@ pub trait Bin {
     }
 }
 
-#[derive(Debug)]
-pub struct BinOwned<'a> {
+#[derive(Debug, Deserialize)]
+pub struct BinOwned {
     backend: Backend,
-    config: &'a BinConfig,
+    host: String,
 }
 
-impl<'a> BinOwned<'a> {
-    pub fn new(backend: Backend, cfg: &'a BinConfig) -> BinOwned<'a> {
-        BinOwned {
-            backend: backend,
-            config: cfg,
-        }
-    }
-}
-
-impl<'a> Bin for BinOwned<'a> {
+impl Bin for BinOwned {
     fn host(&self) -> &str {
-        &self.config.host
+        &self.host
     }
 
     fn backend(&self) -> &Backend {
         &self.backend
     }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct BinConfig {
-    pub host: String,
 }

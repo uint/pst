@@ -1,8 +1,8 @@
 use std::error::Error;
 
-use pst::bins::{Bin, BinOwned};
+use pst::bins::Bin;
 use pst::backends::Backend;
-use pst::config::{self, ConfigStore};
+use pst::config::{self, PstConfig};
 
 use std::fs;
 use std::io::{self, Read};
@@ -23,19 +23,18 @@ fn main() {
 }
 
 fn run_app() -> Result<(), Box<dyn Error>> {
-    let cfg_store = ConfigStore::new()?;
-    let cfg = cfg_store.pst_config()?;
-    let default_bin = cfg.bin();
+    let cfg = PstConfig::new()?;
+    let default_bin = cfg.default_bin_name();
 
-    let backends = Backend::backends_iter()
+    let bins = Backend::backends_iter()
         .map(|x| x.to_string())
         .collect::<Vec<_>>()
         .join(", ");
 
-    let backend_help = format!(
-        "The backend to use.\n\
+    let bin_help = format!(
+        "The bin to use.\n\
         Available options: {}",
-        backends
+        bins
     );
 
     let opts = App::new("pst")
@@ -47,11 +46,11 @@ fn run_app() -> Result<(), Box<dyn Error>> {
                         .help("File to send.")
                         .required(false)
                         .index(1))
-                    .arg(Arg::with_name("backend")
+                    .arg(Arg::with_name("bin")
                         .short("b")
-                        .long("backend")
+                        .long("bin")
                         .default_value(default_bin)
-                        .help(&backend_help))
+                        .help(&bin_help))
                     .arg(Arg::with_name("write-config")
                         .short("w")
                         .long("write-config")
@@ -62,13 +61,8 @@ fn run_app() -> Result<(), Box<dyn Error>> {
         return config::write_default_cfg()
     }
 
-    let backend_name = opts.value_of("backend").unwrap();
-    let backend = Backend::get_backend(&backend_name)?;
-    let cfg = cfg_store.bin_config(backend_name)?;
-    let bin = BinOwned::new(
-        backend,
-        &cfg,
-    );
+    let bin_name = opts.value_of("bin").unwrap();
+    let bin = cfg.bin(bin_name)?;
 
     let content = match opts.value_of("FILE") {
         Some(filename) => fs::read_to_string(filename)?,
