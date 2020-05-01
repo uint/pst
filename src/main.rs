@@ -1,7 +1,6 @@
 use std::error::Error;
 
 use pst::bins::Bin;
-use pst::backends::Backend;
 use pst::config::{self, PstConfig};
 
 use std::fs;
@@ -26,7 +25,7 @@ fn run_app() -> Result<(), Box<dyn Error>> {
     let cfg = PstConfig::new()?;
     let default_bin = cfg.default_bin_name();
 
-    let bins = Backend::backends_iter()
+    let bins = cfg.bin_names()
         .map(|x| x.to_string())
         .collect::<Vec<_>>()
         .join(", ");

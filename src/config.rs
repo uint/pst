@@ -2,7 +2,7 @@ use std::str;
 use std::path::PathBuf;
 use std::error::Error;
 use std::io::Write;
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map::Keys};
 use std::fmt;
 
 use serde::Deserialize;
@@ -60,7 +60,13 @@ impl PstConfig {
         let value = self.bins.get(name).ok_or(InvalidBinError::new(name))?;
         Ok(value.clone().try_into()?)
     }
+
+    pub fn bin_names(&self) -> BinNames<'_> {
+        self.bins.keys()
+    }
 }
+
+type BinNames<'a> = Keys<'a, String, config::Value>;
 
 #[derive(Debug)]
 pub struct InvalidBinError {
