@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use pst::bins::Bin;
+use pst::bins::{Bin, BinOwned};
 use pst::backends::Backend;
 use pst::config::{self, ConfigStore};
 
@@ -65,7 +65,7 @@ fn run_app() -> Result<(), Box<dyn Error>> {
     let backend_name = opts.value_of("backend").unwrap();
     let backend = Backend::get_backend(&backend_name)?;
     let cfg = cfg_store.bin_config(backend_name)?;
-    let bin = Bin::new(
+    let bin = BinOwned::new(
         backend,
         &cfg,
     );

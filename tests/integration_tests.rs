@@ -1,4 +1,4 @@
-use pst::bins::Bin;
+use pst::bins::{Bin, BinOwned};
 use pst::config::ConfigStore;
 use pst::backends::Backend;
 use reqwest::Client;
@@ -14,7 +14,7 @@ fn test_all_the_bins() -> Result<(), BoxError> {
     for backend in Backend::backends_iter() {
         let backend_name = backend.to_string();
         let cfg = cfg_store.bin_config(&backend_name).expect("");
-        assert!(test_bin(Bin::new(
+        assert!(test_bin(BinOwned::new(
             backend,
             &cfg,
         )));
@@ -22,7 +22,7 @@ fn test_all_the_bins() -> Result<(), BoxError> {
     Ok(())
 }
 
-fn test_bin(bin: Bin) -> bool {
+fn test_bin(bin: BinOwned) -> bool {
     let paste = bin.post(TEST_STR).unwrap();
 
     println!("Got the API URL {:?} when testing {:?}", paste.api_url(), bin);
