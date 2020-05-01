@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use std::fmt::Debug;
 
-pub trait Bin {
+pub trait Bin: Debug {
     fn host(&self) -> &str;
     fn backend(&self) -> &Backend;
 
@@ -25,5 +25,30 @@ impl Bin for BinOwned {
 
     fn backend(&self) -> &Backend {
         &self.backend
+    }
+}
+
+#[derive(Debug)]
+pub struct BinShared<'a> {
+    backend: &'a Backend,
+    host: &'a str,
+}
+
+impl BinShared<'_> {
+    pub fn new<'a>(backend: &'a Backend, host: &'a str) -> BinShared<'a> {
+        BinShared {
+            backend,
+            host,
+        }
+    }
+}
+
+impl Bin for BinShared<'_> {
+    fn host(&self) -> &str {
+        self.host
+    }
+
+    fn backend(&self) -> &Backend {
+        self.backend
     }
 }
