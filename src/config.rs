@@ -2,23 +2,31 @@ use std::str;
 use std::path::PathBuf;
 use std::error::Error;
 use std::io::Write;
+use std::collections::{HashMap, hash_map::Keys};
+use std::fmt;
 
 use serde::Deserialize;
-use config::{self, ConfigError, FileFormat};
-use lazy_static::lazy_static;
+use config::{self, FileFormat};
+use crate::bins::BinOwned;
 use rust_embed::RustEmbed;
 use app_dirs::{self, AppDataType, AppInfo, AppDirsError};
 
-use crate::bins::BinConfig;
-
 const APP_INFO: AppInfo = AppInfo{name: "pst", author: "Tomasz Kurcz"};
+
+type BoxError = Box<dyn Error>;
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
 struct Assets;
 
-lazy_static! {
-    static ref CFG: config::Config = {
+#[derive(Debug, Deserialize)]
+pub struct PstConfig {
+    default_bin: String,
+    bins: HashMap<String, config::Value>,
+}
+
+impl PstConfig {
+    pub fn new() -> Result<PstConfig, BoxError> {
         let mut c = config::Config::new();
 
         // The default config, embedded using `rust_embed`
@@ -27,23 +35,59 @@ lazy_static! {
                 Assets::get("default_cfg.toml")
                     .unwrap()
                     .as_ref()
-            ).unwrap(),
+            )?,
             FileFormat::Toml,
-        )).unwrap();
+        ))?;
 
+        // User config found in the default location (usually home dir)
         if let Ok(path) = path_to_user_cfg() {
             let path = path.to_str().unwrap();
             
             #[cfg(debug)]
             eprintln!("User config path: {:?}", path);
 
-            c.merge(config::File::with_name(path).required(false))
-                .unwrap();
+            c.merge(config::File::with_name(path).required(false))?;
         }
 
-        c
-    };
+        Ok(c.try_into()?)
+    }
+
+    pub fn default_bin_name(&self) -> &str {
+        &self.default_bin
+    }
+
+    pub fn bin<'s>(&self, name: &'s str) -> Result<BinOwned, BoxError> {
+        let value = self.bins.get(name).ok_or(InvalidBinError::new(name))?;
+        Ok(value.clone().try_into()?)
+    }
+
+    pub fn bin_names(&self) -> BinNames<'_> {
+        self.bins.keys()
+    }
 }
+
+type BinNames<'a> = Keys<'a, String, config::Value>;
+
+#[derive(Debug)]
+pub struct InvalidBinError {
+    bin_name: String,
+}
+
+impl InvalidBinError {
+    fn new(bin_name: &str) -> InvalidBinError {
+        InvalidBinError {
+            bin_name: bin_name.to_string(),
+        }
+    }
+}
+
+impl fmt::Display for InvalidBinError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Undefined bin `{}`", self.bin_name)
+    }
+}
+
+impl Error for InvalidBinError {}
 
 fn path_to_user_cfg() -> Result<PathBuf, AppDirsError> {
     Ok(app_dirs::app_root(
@@ -61,23 +105,4 @@ pub fn write_default_cfg() -> Result<(), Box<dyn Error>> {
     )?;
     eprintln!("Default config successfully written to: {:?}", &path);
     Ok(())
-}
-
-#[derive(Debug, Deserialize)]
-pub struct PstConfig {
-    bin: String,
-}
-
-impl PstConfig {
-    pub fn bin(&self) -> &str {
-        &self.bin
-    }
-}
-
-pub fn pst_config() -> Result<PstConfig, ConfigError> {
-    CFG.clone().try_into()
-}
-
-pub fn bin_config(name: &str) -> Result<BinConfig, ConfigError> {
-    CFG.get(name)
 }

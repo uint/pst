@@ -1,60 +1,54 @@
-use crate::backends::{Backend, InvalidBackendError, Paste};
+use crate::backends::{Backend, Paste};
 use serde::Deserialize;
 
 use std::fmt::Debug;
 
-#[derive(Debug)]
-pub struct Bin<'a> {
-    backend: &'a Backend,
-    config: &'a BinConfig,
+pub trait Bin: Debug {
+    fn host(&self) -> &str;
+    fn backend(&self) -> &Backend;
+
+    fn post(&self, body: &str) -> Result<Paste, Box<dyn std::error::Error>> {
+        self.backend().post(body, self.host())
+    }
 }
 
 #[derive(Debug, Deserialize)]
-pub struct BinConfig {
+pub struct BinOwned {
+    backend: Backend,
     host: String,
 }
 
-impl<'a> Bin<'a> {
-    pub fn from_str(backend: &'a str, cfg: &'a BinConfig) -> Result<Bin<'a>, InvalidBackendError> {
-        let backend = Backend::get_backend(backend)?;
-
-        Ok(
-            Bin {
-                backend: backend,
-                config: cfg,
-            }
-        )
+impl Bin for BinOwned {
+    fn host(&self) -> &str {
+        &self.host
     }
 
-    // pub fn apply_config(config: Config) {
-    //     unimplemented!();
-    // }
-
-    pub fn post(&self, body: &str) -> Result<Paste, Box<dyn std::error::Error>> {
-        self.backend.post(body)
+    fn backend(&self) -> &Backend {
+        &self.backend
     }
 }
 
-#[test]
-fn bin_from_nonexistent_backend() {
-    let cfg = BinConfig{
-        host: "bleh".to_string(),
-    };
-
-    assert!(Bin::from_str("", &cfg).is_err());
-    assert!(Bin::from_str("non_existent_backend_123", &cfg).is_err());
+#[derive(Debug)]
+pub struct BinShared<'a> {
+    backend: &'a Backend,
+    host: &'a str,
 }
 
-#[test]
-fn create_bin_from_str() -> Result<(), String> {
-    let cfg = BinConfig {
-        host: "bleh".to_string(),
-    };
+impl BinShared<'_> {
+    pub fn new<'a>(backend: &'a Backend, host: &'a str) -> BinShared<'a> {
+        BinShared {
+            backend,
+            host,
+        }
+    }
+}
 
-    let bin = Bin::from_str("clbin", &cfg)
-        .expect("Cannot create Bin from `clbin`!");
-    match bin.backend {
-        Backend::Clbin => Ok(()),
-        _ => Err(String::from("The created bin's backend wasn't clbin!"))
+impl Bin for BinShared<'_> {
+    fn host(&self) -> &str {
+        self.host
+    }
+
+    fn backend(&self) -> &Backend {
+        self.backend
     }
 }

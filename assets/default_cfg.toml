@@ -1,13 +1,17 @@
-bin = "termbin"
+default_bin = "termbin"
 
-[termbin]
-host = ""
+[bins.termbin]
+backend = "termbin"
+host = "termbin.com:9999"
 
-[pastebin]
-host = ""
+[bins.pastebin]
+backend = "pastebin"
+host = "https://pastebin.com/api/api_post.php"
 
-[clbin]
-host = ""
+[bins.clbin]
+backend = "clbin"
+host = "https://clbin.com"
 
-[hastebin]
-host = ""
+[bins.hastebin]
+backend = "hastebin"
+host = "https://hastebin.com/"

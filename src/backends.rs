@@ -1,24 +1,16 @@
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::fmt::{self, Debug};
-use std::collections::{hash_map, HashMap};
 use std::error::Error;
+use std::str::FromStr;
 
-use lazy_static::lazy_static;
 use serde::Deserialize;
+use strum_macros::{EnumString, EnumIter, Display};
+use strum::IntoEnumIterator;
 
-lazy_static! {
-    static ref BACKENDS: HashMap<&'static str, Backend> = {
-        let mut m = HashMap::new();
-        m.insert("clbin", Backend::Clbin);
-        m.insert("termbin", Backend::Termbin);
-        m.insert("pastebin", Backend::Pastebin);
-        m.insert("hastebin", Backend::Hastebin);
-        m
-    };
-}
-
-#[derive(Debug)]
+#[derive(Debug, Display, Deserialize, EnumIter, EnumString, Clone, Copy)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum Backend {
     Clbin,
     Termbin,
@@ -27,17 +19,16 @@ pub enum Backend {
 }
 
 impl Backend {
-    pub fn get_backend(name: &str) -> Result<&Backend, InvalidBackendError> {
-        BACKENDS.get(name)
-            .ok_or(InvalidBackendError::new(String::from(name)))
+    pub fn get_backend(name: &str) -> Result<Backend, InvalidBackendError> {
+        Backend::from_str(name).map_err(|_| InvalidBackendError::new(String::from(name)))
     }
 
-    pub fn backend_iter() -> hash_map::Iter<'static, &'static str, Backend> {
-        BACKENDS.iter()
+    pub fn backends_iter() -> BackendIter {
+        Backend::iter()
     }
 
-    pub fn post(&self, body: &str) -> Result<Paste, Box<dyn Error>> {
-        use Backend::*;
+    pub fn post(&self, body: &str, host: &str) -> Result<Paste, Box<dyn Error>> {
+        use crate::backends::Backend::*;
 
         match self {
             Clbin => {
@@ -45,7 +36,7 @@ impl Backend {
 
                 let params = [("clbin", body)];
 
-                let mut res = client.post("https://clbin.com")
+                let mut res = client.post(host)
                                 .form(&params)
                                 .send()?;
 
@@ -60,7 +51,7 @@ impl Backend {
                 ))
             },
             Termbin => {
-                let mut stream = TcpStream::connect("termbin.com:9999")?;
+                let mut stream = TcpStream::connect(host)?;
 
                 stream.write_fmt(format_args!("{}", body))?;
 
@@ -81,7 +72,7 @@ impl Backend {
                     ("api_paste_code", body),
                 ];
 
-                let mut res = client.post("https://pastebin.com/api/api_post.php")
+                let mut res = client.post(host)
                     .form(&params)
                     .send()?;
                 
@@ -96,7 +87,9 @@ impl Backend {
             Hastebin => {
                 let client = reqwest::Client::new();
 
-                let mut res = client.post("https://hastebin.com/documents/")
+                let url = format!("{}documents/", host);
+
+                let mut res = client.post(&url)
                                 .body(body.to_string())
                                 .send()?;
 
@@ -111,8 +104,8 @@ impl Backend {
                 let res: Response = res.json()?;
 
                 Ok(Paste::new(
-                    format!("https://hastebin.com/{}", res.key),
-                    Some(format!("https://hastebin.com/documents/{}", res.key)),
+                    format!("{}{}", host, res.key),
+                    Some(format!("{}documents/{}", host, res.key)),
                 ))
             },
         }
