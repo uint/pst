@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use pst::bins::Bin;
 use pst::config;
 
 use std::fs;

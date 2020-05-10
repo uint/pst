@@ -4,14 +4,14 @@ use std::collections::{HashMap, hash_map::Keys};
 use std::fmt;
 
 use serde::Deserialize;
-use crate::bins::BinOwned;
+use crate::bins::Bin;
 
 type BoxError = Box<dyn Error>;
 
 #[derive(Debug, Deserialize)]
 pub struct Pst {
     default_bin: String,
-    bins: HashMap<String, BinOwned>,
+    bins: HashMap<String, Bin>,
 }
 
 impl Pst {
@@ -33,7 +33,7 @@ impl Pst {
         &self.default_bin
     }
 
-    pub fn bin<'s>(&self, name: &'s str) -> Result<&BinOwned, BoxError> {
+    pub fn bin<'s>(&self, name: &'s str) -> Result<&Bin, BoxError> {
         Ok(self.bins.get(name).ok_or(InvalidBinError::new(name))?)
     }
 
@@ -42,7 +42,7 @@ impl Pst {
     }
 }
 
-type BinNames<'a> = Keys<'a, String, BinOwned>;
+type BinNames<'a> = Keys<'a, String, Bin>;
 
 #[derive(Debug)]
 pub struct InvalidBinError {
