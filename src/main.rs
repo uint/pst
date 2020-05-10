@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use pst::bins::Bin;
-use pst::config::{self, PstConfig};
+use pst::config;
 
 use std::fs;
 use std::io::{self, Read};
@@ -22,10 +22,10 @@ fn main() {
 }
 
 fn run_app() -> Result<(), Box<dyn Error>> {
-    let cfg = PstConfig::new()?;
-    let default_bin = cfg.default_bin_name();
+    let pst = config::pst_from_cfg()?;
+    let default_bin = pst.default_bin_name();
 
-    let bins = cfg.bin_names()
+    let bins = pst.bin_names()
         .map(|x| x.to_string())
         .collect::<Vec<_>>()
         .join(", ");
@@ -61,7 +61,7 @@ fn run_app() -> Result<(), Box<dyn Error>> {
     }
 
     let bin_name = opts.value_of("bin").unwrap();
-    let bin = cfg.bin(bin_name)?;
+    let bin = pst.bin(bin_name)?;
 
     let content = match opts.value_of("FILE") {
         Some(filename) => fs::read_to_string(filename)?,
