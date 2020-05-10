@@ -1,5 +1,5 @@
 [package]
-name = "pst"
+name = "pst_bin"
 description = "Share code or text without leaving the command line."
 version = "0.1.0-alpha.0"
 authors = ["Tomasz Kurcz <uint@lavabit.com>"]
@@ -9,8 +9,10 @@ keywords = ["pastebin", "CLI", "paste"]
 categories = ["command-line-utilities"]
 build = "build.rs"
 
+[workspace]
+
 [dependencies]
-reqwest = "0.9"
+pst = { path = "lib" }
 clap = "2"
 serde = "1"
 config = "0.10"

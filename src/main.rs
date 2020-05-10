@@ -1,6 +1,8 @@
+mod config;
+
 use std::error::Error;
 
-use pst::config;
+//use crate::config;
 
 use std::fs;
 use std::io::{self, Read};

@@ -1,4 +1,6 @@
 pub mod pst;
 pub mod bins;
 pub mod backends;
-pub mod config;
+
+pub use self::pst::Pst;
+pub use bins::Bin;

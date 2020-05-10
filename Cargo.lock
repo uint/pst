@@ -803,10 +803,20 @@ dependencies = [
 name = "pst"
 version = "0.1.0-alpha.0"
 dependencies = [
+ "reqwest 0.9.24 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
+ "strum 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "strum_macros 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "pst_bin"
+version = "0.1.0-alpha.0"
+dependencies = [
  "app_dirs 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "config 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "reqwest 0.9.24 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pst 0.1.0-alpha.0",
  "rust-embed 5.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.106 (registry+https://github.com/rust-lang/crates.io-index)",
  "strum 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",

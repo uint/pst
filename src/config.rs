@@ -7,7 +7,7 @@ use config::{self, FileFormat};
 use rust_embed::RustEmbed;
 use app_dirs::{self, AppDataType, AppInfo, AppDirsError};
 
-use crate::pst::Pst;
+use pst::Pst;
 
 const APP_INFO: AppInfo = AppInfo{name: "pst", author: "Tomasz Kurcz"};
 

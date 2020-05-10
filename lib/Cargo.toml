@@ -1,0 +1,15 @@
+[package]
+name = "pst"
+description = "Pastebin service bindings."
+version = "0.1.0-alpha.0"
+authors = ["Tomasz Kurcz <uint@lavabit.com>"]
+edition = "2018"
+license = "MIT"
+keywords = ["pastebin", "paste", "bindings"]
+categories = ["api-bindings"]
+
+[dependencies]
+reqwest = "0.9"
+serde = "1"
+strum = "0.18"
+strum_macros = "0.18"
