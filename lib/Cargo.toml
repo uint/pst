@@ -9,7 +9,7 @@ keywords = ["pastebin", "paste", "bindings"]
 categories = ["api-bindings"]
 
 [dependencies]
-reqwest = "0.9"
-serde = "1"
+attohttpc = { version = "0.13", features = ["form", "json"] }
+serde = { version = "1", features = ["derive"] }
 strum = "0.18"
 strum_macros = "0.18"

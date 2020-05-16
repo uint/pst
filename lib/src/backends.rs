@@ -32,13 +32,11 @@ impl Backend {
 
         match self {
             Clbin => {
-                let client = reqwest::Client::new();
-
                 let params = [("clbin", body)];
 
-                let mut res = client.post(host)
-                                .form(&params)
-                                .send()?;
+                let res = attohttpc::post(host)
+                    .form(&params)?
+                    .send()?;
 
                 #[cfg(debug)]
                 eprintln!("Status code received: {}", res.status());
@@ -64,16 +62,14 @@ impl Backend {
                 ))
             },
             Pastebin => {
-                let client = reqwest::Client::new();
-
                 let params = [
                     ("api_dev_key", "f44aba454f63e16cef1a46d58477481b"),
                     ("api_option", "paste"),
                     ("api_paste_code", body),
                 ];
 
-                let mut res = client.post(host)
-                    .form(&params)
+                let res = attohttpc::post(host)
+                    .form(&params)?
                     .send()?;
                 
                 #[cfg(debug)]
@@ -85,12 +81,10 @@ impl Backend {
                 ))
             },
             Hastebin => {
-                let client = reqwest::Client::new();
-
                 let url = format!("{}documents/", host);
 
-                let mut res = client.post(&url)
-                                .body(body.to_string())
+                let res = attohttpc::post(&url)
+                                .body(attohttpc::body::Text(body))
                                 .send()?;
 
                 #[cfg(debug)]

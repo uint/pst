@@ -2,8 +2,6 @@ mod config;
 
 use std::error::Error;
 
-//use crate::config;
-
 use std::fs;
 use std::io::{self, Read};
 use clap::{Arg, App, AppSettings};
